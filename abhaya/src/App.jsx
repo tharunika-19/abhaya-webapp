@@ -76,6 +76,12 @@ export default function App() {
   const [sosPressed, setSosPressed] = useState(false)
   const [personalContacts, setPersonalContacts] = useState([])
   const greeting = getGreeting()
+  const [learnTab, setLearnTab] = useState("Safety Hub")
+  const [flashcardIndex, setFlashcardIndex] = useState(0)
+  const [flipped, setFlipped] = useState(false)
+  const [messages, setMessages] = useState([])
+  const [chatInput, setChatInput] = useState("")
+  const [aiTyping, setAiTyping] = useState(false)
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -83,6 +89,60 @@ export default function App() {
     }, 4000)
     return () => clearInterval(interval)
   }, [])
+  const handleSend = async (text) => {
+  if (!text.trim()) return
+  setChatInput("")
+  const userMsg = { role: "user", content: text }
+  setMessages(prev => [...prev, userMsg])
+  setAiTyping(true)
+
+  try {
+    const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${import.meta.env.VITE_GROQ_API_KEY}`,
+      },
+      body: JSON.stringify({
+        model: "llama-3.1-8b-instant",
+        messages: [
+          {
+            role: "system",
+            content: `You are Abhaya, a calm and knowledgeable AI safety assistant for women in India. 
+You help women with:
+- What to do in dangerous situations
+- Women safety laws in India (IPC sections, POCSO, DV Act etc.)
+- Emergency helpline numbers
+- Cyber safety and harassment
+- Travel safety tips
+- Self defense basics
+Always be calm, clear and supportive. Keep responses concise and practical.
+Important helplines to mention when relevant: 112 (emergency), 1091 (women), 100 (police), 1930 (cyber crime).`
+          },
+          ...messages,
+          userMsg,
+        ],
+        max_tokens: 500,
+      })
+    })
+    const data = await res.json()
+    const reply = data.choices?.[0]?.message?.content || "Sorry, I couldn't respond. Please try again."
+    setMessages(prev => [...prev, { role: "assistant", content: reply }])
+  } catch {
+    setMessages(prev => [...prev, { role: "assistant", content: "Connection error. Please check your internet and try again." }])
+  }
+  setAiTyping(false)
+}
+  const flashcards = [
+  { question: "What is IPC Section 354?", answer: "Assault or criminal force against a woman to outrage her modesty. Punishable with up to 2 years imprisonment." },
+  { question: "Which helpline number works anywhere in India for emergencies?", answer: "112 — the National Emergency Number. Works even without a SIM card or balance." },
+  { question: "What should you shout in public if attacked?", answer: "Shout FIRE instead of HELP — people respond faster to fire alerts in crowded places." },
+  { question: "What is the POCSO Act?", answer: "Protection of Children from Sexual Offences Act 2012 — protects anyone under 18 from sexual abuse." },
+  { question: "Which website do you visit to report cyber crime in India?", answer: "cybercrime.gov.in — or call 1930, the National Cyber Crime Helpline." },
+  { question: "What is IPC Section 509?", answer: "Words, gestures or acts intended to insult a woman's modesty — includes catcalling and eve-teasing." },
+  { question: "What is the weakest point of an attacker's grip on your wrist?", answer: "The thumb — rotate your arm toward their thumb to break free from any wrist grab." },
+  { question: "What is the Women Helpline number in India?", answer: "1091 — available 24/7 specifically for women's safety emergencies." },
+]
 
   return (
     <div style={{ background: "#080c14", minHeight: "100vh", color: "#fff", fontFamily: "'Inter', 'Segoe UI', sans-serif" }}>
@@ -542,8 +602,337 @@ export default function App() {
   </div>
 )}
 
+{/* LEARN PAGE */}
+{activeTab === "learn" && (
+  <div style={{ maxWidth: 1280, margin: "0 auto", padding: "40px 48px" }}>
+
+    {/* Tab switcher */}
+    <div style={{ display: "flex", gap: 8, marginBottom: 36 }}>
+      {["Safety Hub", "Flashcards"].map(t => (
+        <button key={t} onClick={() => setLearnTab(t)}
+          style={{
+            background: learnTab === t ? "linear-gradient(135deg, rgba(229,62,62,0.2), rgba(197,48,48,0.1))" : "transparent",
+            border: learnTab === t ? "1px solid rgba(229,62,62,0.35)" : "1px solid rgba(255,255,255,0.08)",
+            borderRadius: 10, padding: "10px 24px",
+            color: learnTab === t ? "#fc8181" : "#718096",
+            cursor: "pointer", fontSize: 14, fontWeight: learnTab === t ? 700 : 400,
+            fontFamily: "Inter, sans-serif",
+            boxShadow: learnTab === t ? "0 0 12px rgba(229,62,62,0.2)" : "none",
+            transition: "all 0.2s",
+          }}>{t}</button>
+      ))}
+    </div>
+
+    {/* SAFETY HUB */}
+    {learnTab === "Safety Hub" && (
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 20 }}>
+        {[
+          {
+            title: "Women Safety Laws",
+            color: "#fc8181", glow: "rgba(252,129,129,0.3)",
+            icon: "⚖️",
+            items: [
+              { law: "IPC Section 354", desc: "Assault or criminal force against a woman with intent to outrage her modesty. Punishable up to 2 years." },
+              { law: "IPC Section 375 & 376", desc: "Defines rape and its punishment — minimum 7 years, can extend to life imprisonment." },
+              { law: "IPC Section 509", desc: "Words, gestures or acts intended to insult a woman's modesty — includes catcalling and eve-teasing." },
+              { law: "Protection of Women from DV Act 2005", desc: "Protects women from physical, emotional, sexual and economic abuse within domestic relationships." },
+              { law: "POCSO Act 2012", desc: "Protection of Children from Sexual Offences — covers anyone under 18." },
+            ]
+          },
+          {
+            title: "Cyber Safety",
+            color: "#b794f4", glow: "rgba(183,148,244,0.3)",
+            icon: "🔒",
+            items: [
+              { law: "IT Act Section 66E", desc: "Punishment for capturing or publishing private images of a person without consent. Up to 3 years imprisonment." },
+              { law: "IT Act Section 67", desc: "Publishing obscene material in electronic form — up to 5 years imprisonment." },
+              { law: "Cyber Stalking — IPC 354D", desc: "Monitoring a woman's internet activity or contacting her repeatedly against her will is a criminal offence." },
+              { law: "Report Cyber Crime", desc: "Visit cybercrime.gov.in or call 1930 to report any online harassment immediately." },
+            ]
+          },
+          {
+            title: "Travel Safety Tips",
+            color: "#f6ad55", glow: "rgba(246,173,85,0.3)",
+            icon: "🚗",
+            items: [
+              { law: "Share your ride details", desc: "Always share cab number, driver name and route with a trusted contact before starting your journey." },
+              { law: "Sit strategically", desc: "In autos and cabs, sit behind the driver — never in the front seat when traveling alone at night." },
+              { law: "Verify before boarding", desc: "Cross-check the cab number plate with what's shown in the app before getting in." },
+              { law: "Fake call trick", desc: "If you feel unsafe, make or pretend to make a call — mention your location loudly." },
+              { law: "Trust your gut", desc: "If something feels wrong, ask the driver to stop at a public place. Your instinct is your first defence." },
+            ]
+          },
+          {
+            title: "Self Defense Basics",
+            color: "#68d391", glow: "rgba(104,211,145,0.3)",
+            icon: "💪",
+            items: [
+              { law: "Palm Strike", desc: "Use the heel of your palm to strike the attacker's nose or chin — more effective than a closed fist." },
+              { law: "Knee to Groin", desc: "If grabbed from the front, a swift knee to the groin creates enough time to escape." },
+              { law: "Wrist Release", desc: "If your wrist is grabbed, rotate your arm toward the attacker's thumb — the weakest point of their grip." },
+              { law: "Use your voice", desc: "Shout FIRE instead of HELP — people respond faster to fire alerts in public spaces." },
+              { law: "Everyday tools", desc: "Keys between fingers, a pen, or a safety pin can be effective tools in an emergency." },
+            ]
+          },
+        ].map(category => (
+          <div key={category.title} style={{
+            background: "linear-gradient(135deg, #0f1923, #111827)",
+            border: "1px solid rgba(255,255,255,0.07)",
+            borderRadius: 16, overflow: "hidden",
+            transition: "border-color 0.2s",
+          }}
+            onMouseEnter={e => e.currentTarget.style.borderColor = category.color + "44"}
+            onMouseLeave={e => e.currentTarget.style.borderColor = "rgba(255,255,255,0.07)"}
+          >
+            {/* Category Header */}
+            <div style={{
+              padding: "20px 24px",
+              borderBottom: "1px solid rgba(255,255,255,0.05)",
+              display: "flex", alignItems: "center", gap: 12,
+              background: "rgba(255,255,255,0.02)",
+            }}>
+              <span style={{ fontSize: 24 }}>{category.icon}</span>
+              <h3 style={{ fontWeight: 800, fontSize: 16, color: category.color }}>{category.title}</h3>
+            </div>
+
+            {/* Items */}
+            <div style={{ padding: "16px 24px", display: "flex", flexDirection: "column", gap: 14 }}>
+              {category.items.map((item, i) => (
+                <div key={i} style={{
+                  borderLeft: "3px solid " + category.color + "66",
+                  paddingLeft: 14,
+                }}>
+                  <p style={{ fontWeight: 700, color: "#e2e8f0", fontSize: 13, marginBottom: 4 }}>{item.law}</p>
+                  <p style={{ color: "#718096", fontSize: 12, lineHeight: 1.6 }}>{item.desc}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+    )}
+
+    {/* FLASHCARDS */}
+    {learnTab === "Flashcards" && (
+      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 32 }}>
+        <p style={{ color: "#4a5568", fontSize: 13 }}>Click the card to reveal the answer</p>
+
+        {/* Card */}
+        <div
+          onClick={() => setFlipped(prev => !prev)}
+          style={{
+            width: 600, minHeight: 280,
+            background: flipped
+              ? "linear-gradient(135deg, rgba(229,62,62,0.15), rgba(197,48,48,0.08))"
+              : "linear-gradient(135deg, #0f1923, #111827)",
+            border: flipped ? "1px solid rgba(229,62,62,0.3)" : "1px solid rgba(255,255,255,0.08)",
+            borderRadius: 20,
+            display: "flex", flexDirection: "column",
+            alignItems: "center", justifyContent: "center",
+            padding: "40px 48px", cursor: "pointer",
+            textAlign: "center",
+            boxShadow: flipped ? "0 0 40px rgba(229,62,62,0.15)" : "none",
+            transition: "all 0.4s",
+          }}
+        >
+          <p style={{ color: "#4a5568", fontSize: 11, textTransform: "uppercase", letterSpacing: 3, marginBottom: 20 }}>
+            {flipped ? "Answer" : "Question"} — {flashcardIndex + 1} / {flashcards.length}
+          </p>
+          <p style={{ fontSize: 22, fontWeight: 800, color: flipped ? "#fc8181" : "#e2e8f0", lineHeight: 1.5 }}>
+            {flipped ? flashcards[flashcardIndex].answer : flashcards[flashcardIndex].question}
+          </p>
+          <p style={{ color: "#4a5568", fontSize: 12, marginTop: 24 }}>
+            {flipped ? "Click to see question" : "Click to reveal answer"}
+          </p>
+        </div>
+
+        {/* Navigation */}
+        <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
+          <button
+            onClick={() => { setFlashcardIndex(prev => (prev - 1 + flashcards.length) % flashcards.length); setFlipped(false) }}
+            style={{
+              background: "rgba(255,255,255,0.05)",
+              border: "1px solid rgba(255,255,255,0.1)",
+              borderRadius: 10, padding: "10px 24px",
+              color: "#718096", cursor: "pointer", fontSize: 14,
+              fontFamily: "Inter, sans-serif",
+            }}>Previous</button>
+          <span style={{ color: "#4a5568", fontSize: 13 }}>{flashcardIndex + 1} of {flashcards.length}</span>
+          <button
+            onClick={() => { setFlashcardIndex(prev => (prev + 1) % flashcards.length); setFlipped(false) }}
+            style={{
+              background: "linear-gradient(135deg, #c53030, #e53e3e)",
+              border: "none", borderRadius: 10, padding: "10px 24px",
+              color: "#fff", cursor: "pointer", fontSize: 14, fontWeight: 700,
+              fontFamily: "Inter, sans-serif",
+              boxShadow: "0 0 16px rgba(229,62,62,0.4)",
+            }}>Next</button>
+        </div>
+      </div>
+    )}
+  </div>
+)}
+
+{/* AI CHATBOT PAGE */}
+{activeTab === "chatbot" && (
+  <div style={{ 
+    maxWidth: 1000, margin: "0 auto", padding: "40px 48px", 
+    display: "flex", flexDirection: "column", 
+    height: "calc(100vh - 68px)",
+  }}>
+    
+    <p style={{ color: "#4a5568", fontSize: 11, textTransform: "uppercase", letterSpacing: 3, marginBottom: 24 }}>
+      AI Safety Assistant
+    </p>
+
+    {/* Chat messages */}
+    <div style={{
+      flex: 1, overflowY: "auto", display: "flex", flexDirection: "column", gap: 16,
+      marginBottom: 20, paddingRight: 4,
+      scrollbarWidth: "thin",
+      scrollbarColor: "#21262d transparent",
+    }}>
+      {messages.length === 0 && (
+        <div style={{ textAlign: "center", marginTop: 40, padding: "0 40px" }}>
+          
+          {/* Superwoman outline emoji */}
+          <div style={{ fontSize: 72, marginBottom: 20, lineHeight: 1 }}>🦸‍♀️</div>
+          
+          <p style={{ color: "#e2e8f0", fontSize: 22, fontWeight: 800, marginBottom: 10, letterSpacing: 0.5 }}>
+            Abhaya AI Assistant
+          </p>
+          <p style={{ color: "#4a5568", fontSize: 15, marginBottom: 40, lineHeight: 1.6, maxWidth: 500, margin: "0 auto 40px" }}>
+            Ask me anything about women safety, Indian laws, or what to do in an emergency situation
+          </p>
+
+          {/* Suggestion chips */}
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 10, justifyContent: "center", maxWidth: 700, margin: "0 auto" }}>
+            {[
+              "What should I do if someone follows me?",
+              "What are women safety laws in India?",
+              "How do I report cyber harassment?",
+              "What to do in a cab at night?",
+              "Which helpline should I call in emergency?",
+            ].map(q => (
+              <button key={q} onClick={() => handleSend(q)} style={{
+                background: "rgba(255,255,255,0.04)",
+                border: "1px solid rgba(255,255,255,0.1)",
+                borderRadius: 24, padding: "10px 20px",
+                color: "#718096", fontSize: 13, cursor: "pointer",
+                fontFamily: "Inter, sans-serif",
+                transition: "all 0.2s",
+                lineHeight: 1.4,
+              }}
+                onMouseEnter={e => { 
+                  e.currentTarget.style.borderColor = "rgba(229,62,62,0.4)"
+                  e.currentTarget.style.color = "#fc8181"
+                  e.currentTarget.style.background = "rgba(229,62,62,0.06)"
+                }}
+                onMouseLeave={e => { 
+                  e.currentTarget.style.borderColor = "rgba(255,255,255,0.1)"
+                  e.currentTarget.style.color = "#718096"
+                  e.currentTarget.style.background = "rgba(255,255,255,0.04)"
+                }}
+              >{q}</button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {messages.map((msg, i) => (
+        <div key={i} style={{
+          display: "flex",
+          justifyContent: msg.role === "user" ? "flex-end" : "flex-start",
+          alignItems: "flex-end",
+          gap: 10,
+        }}>
+          {/* AI avatar */}
+          {msg.role === "assistant" && (
+            <div style={{
+              width: 36, height: 36, borderRadius: "50%", flexShrink: 0,
+              background: "linear-gradient(135deg, rgba(229,62,62,0.2), rgba(197,48,48,0.1))",
+              border: "1px solid rgba(229,62,62,0.3)",
+              display: "flex", alignItems: "center", justifyContent: "center",
+              fontSize: 18,
+            }}>🦸‍♀️</div>
+          )}
+
+          <div style={{
+            maxWidth: "65%",
+            background: msg.role === "user"
+              ? "linear-gradient(135deg, #c53030, #e53e3e)"
+              : "linear-gradient(135deg, #0f1923, #161b22)",
+            border: msg.role === "user" ? "none" : "1px solid rgba(255,255,255,0.08)",
+            borderRadius: msg.role === "user" ? "20px 20px 4px 20px" : "20px 20px 20px 4px",
+            padding: "14px 20px",
+            boxShadow: msg.role === "user" ? "0 0 20px rgba(229,62,62,0.25)" : "none",
+          }}>
+            <p style={{ 
+              color: "#fff", fontSize: 14, lineHeight: 1.8, 
+              whiteSpace: "pre-wrap", margin: 0,
+            }}>{msg.content}</p>
+          </div>
+        </div>
+      ))}
+
+      {aiTyping && (
+        <div style={{ display: "flex", justifyContent: "flex-start", alignItems: "flex-end", gap: 10 }}>
+          <div style={{
+            width: 36, height: 36, borderRadius: "50%", flexShrink: 0,
+            background: "linear-gradient(135deg, rgba(229,62,62,0.2), rgba(197,48,48,0.1))",
+            border: "1px solid rgba(229,62,62,0.3)",
+            display: "flex", alignItems: "center", justifyContent: "center",
+            fontSize: 18,
+          }}>🦸‍♀️</div>
+          <div style={{
+            background: "linear-gradient(135deg, #0f1923, #161b22)",
+            border: "1px solid rgba(255,255,255,0.08)",
+            borderRadius: "20px 20px 20px 4px",
+            padding: "14px 20px",
+          }}>
+            <p style={{ color: "#4a5568", fontSize: 14, margin: 0 }}>Abhaya is thinking...</p>
+          </div>
+        </div>
+      )}
+    </div>
+
+    {/* Input box */}
+    <div style={{ 
+      display: "flex", gap: 12,
+      background: "rgba(255,255,255,0.03)",
+      border: "1px solid rgba(255,255,255,0.08)",
+      borderRadius: 16, padding: "8px 8px 8px 20px",
+      alignItems: "center",
+    }}>
+      <input
+        value={chatInput}
+        onChange={e => setChatInput(e.target.value)}
+        onKeyDown={e => e.key === "Enter" && handleSend(chatInput)}
+        placeholder="Ask anything about safety..."
+        style={{
+          flex: 1,
+          background: "transparent",
+          border: "none",
+          color: "#fff", fontSize: 14, outline: "none",
+          fontFamily: "Inter, sans-serif",
+          padding: "8px 0",
+        }}
+      />
+      <button onClick={() => handleSend(chatInput)} style={{
+        background: "linear-gradient(135deg, #c53030, #e53e3e)",
+        border: "none", borderRadius: 10,
+        padding: "12px 28px", color: "#fff",
+        fontWeight: 700, fontSize: 14, cursor: "pointer",
+        boxShadow: "0 0 16px rgba(229,62,62,0.35)",
+        fontFamily: "Inter, sans-serif",
+        flexShrink: 0,
+      }}>Send</button>
+    </div>
+  </div>
+)}
+
 {/* Placeholder for other tabs */}
-{activeTab !== "home" && activeTab !== "contacts" && (
+{activeTab !== "home" && activeTab !== "contacts" && activeTab !== "learn" && activeTab !== "chatbot" && (
   <div style={{
     display: "flex", alignItems: "center", justifyContent: "center",
     height: "calc(100vh - 68px)", flexDirection: "column", gap: 16, color: "#4a5568",
