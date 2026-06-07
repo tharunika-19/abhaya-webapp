@@ -25,7 +25,7 @@
 > **"Abhaya"** (अभया) — Sanskrit for *fearlessness*.  
 > A real-time women safety web app built for emergencies, awareness, and empowerment.
 
-[🚀 Live Demo]( https://abhaya-webapp.vercel.app) · [📸 Screenshots](#screenshots) · [🛠️ Features](#features) · [⚙️ Setup](#setup)
+[🚀 Live Demo](https://abhaya-webapp.vercel.app) · [📸 Screenshots](#screenshots) · [🛠️ Features](#features) · [⚙️ Setup](#setup)
 
 </div>
 
@@ -41,7 +41,6 @@ Abhaya is a **full-stack women safety platform** designed for real emergencies a
 - ⚡ **Quick Exit** — disguises the app as a calculator in one tap
 
 ---
-
 ## 🔥 Features
 
 ### 🚨 Emergency Tools
@@ -94,7 +93,7 @@ Version Ctrl  → Git + GitHub
 
 ## 📸 Screenshots
 
-> *(Add screenshots here — SOS page, Chatbot, Safety Hub, Mobile view)*
+
 ><img width="1904" height="954" alt="image" src="https://github.com/user-attachments/assets/beabeeff-c7f3-4c10-bbec-87a4c6e3a0bd" />
 
 ><img width="1894" height="938" alt="image" src="https://github.com/user-attachments/assets/67e8e36a-4622-4282-ae54-85b7efa1809d" />
