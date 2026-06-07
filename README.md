@@ -25,7 +25,7 @@
 > **"Abhaya"** (अभया) — Sanskrit for *fearlessness*.  
 > A real-time women safety web app built for emergencies, awareness, and empowerment.
 
-[🚀 Live Demo](#) · [📸 Screenshots](#screenshots) · [🛠️ Features](#features) · [⚙️ Setup](#setup)
+[🚀 Live Demo]( https://abhaya-webapp.vercel.app) · [📸 Screenshots](#screenshots) · [🛠️ Features](#features) · [⚙️ Setup](#setup)
 
 </div>
 
