@@ -196,9 +196,7 @@ This was my **first-ever React project** — built from absolute zero. Here's wh
 
 ## 👩‍💻 Author
 
-**Tharunika** — 2nd Year B.Tech CS/AIML Student  
-📍 Hyderabad, India  
-🎯 Targeting FAANG+ | Building real things to get there
+**Tharunika** — 2nd Year B.Tech CS/AIML Student 
 
 [![GitHub](https://img.shields.io/badge/GitHub-tharunika--19-181717?style=for-the-badge&logo=github)](https://github.com/tharunika-19/abhaya-webapp)
 
@@ -207,7 +205,6 @@ This was my **first-ever React project** — built from absolute zero. Here's wh
 ## ⭐ Support
 
 If this project helped you or inspired you — drop a ⭐ on the repo!  
-Every star motivates a student builder. 🙏
 
 ---
 
