@@ -5,7 +5,7 @@ const getGreeting = () => {
   const hour = new Date().getHours()
   if (hour < 12) return { text: "Good Morning", sub: "Start your day safe and fearless 🌅" }
   if (hour < 17) return { text: "Good Afternoon", sub: "Stay aware, stay strong ☀️" }
-  if (hour < 21) return { text: "Good Evening", sub: "You are never alone 🌆" }
+  if (hour < 21) return { text: "Good Evening", sub: "You are never alone " }
   return { text: "Stay Safe Tonight", sub: "Abhaya is always with you 🌙" }
 }
 
